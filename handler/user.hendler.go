@@ -6,6 +6,7 @@ import (
 	"malai/model/emtity"
 	"malai/model/request"
 
+	"github.com/go-playground/validator"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -35,6 +36,16 @@ func UserHandlerCreate(c *fiber.Ctx) error {
 	if err != nil {
 		return c.JSON(fiber.Map{
 			"error": err,
+		})
+	}
+
+	var validate = validator.New()
+	err = validate.Struct(user)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"message": "Bad request",
+			"error":   err,
+			"docs":    nil,
 		})
 	}
 
