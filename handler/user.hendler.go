@@ -1,10 +1,10 @@
 package handler
 
 import (
-	"log"
 	"malai/database"
 	"malai/model/emtity"
 	"malai/model/request"
+	"malai/model/response"
 
 	"github.com/go-playground/validator"
 	"github.com/gofiber/fiber/v2"
@@ -21,7 +21,9 @@ func UserHandlerGetAll(c *fiber.Ctx) error {
 
 	err := database.DB.Find(&users).Error
 	if err != nil {
-		log.Println(err)
+		return c.JSON(fiber.Map{
+			"error": err,
+		})
 	}
 
 	return c.JSON(fiber.Map{
@@ -29,8 +31,59 @@ func UserHandlerGetAll(c *fiber.Ctx) error {
 	})
 }
 
+func UserHandlerGetById(c *fiber.Ctx) error {
+	userId := c.Params("id")
+	var user emtity.UserEmtity
+
+	err := database.DB.First(&user, "id=?", userId).Error
+	if err != nil {
+		return c.Status(404).JSON(fiber.Map{
+			"message": "Not found",
+			"error":   err,
+			"docs":    nil,
+		})
+	}
+
+	userResponse := response.UserResponse{
+		ID:        user.ID,
+		Name:      user.Name,
+		Email:     user.Email,
+		Address:   user.Address,
+		Phone:     user.Phone,
+		Age:       user.Age,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+	}
+
+	return c.Status(200).JSON(fiber.Map{
+		"message": "Successful",
+		"docs":    userResponse,
+		"error":   nil,
+	})
+}
+
+func UserHandlerGetByIdLv2(c *fiber.Ctx) error {
+	userId := c.Params("id")
+	var user emtity.UserEmtity
+
+	err := database.DB.First(&user, "id=?", userId).Error
+	if err != nil {
+		return c.Status(404).JSON(fiber.Map{
+			"message": "Not found",
+			"error":   err,
+			"docs":    nil,
+		})
+	}
+
+	return c.Status(200).JSON(fiber.Map{
+		"message": "Successful",
+		"docs":    user,
+		"error":   nil,
+	})
+}
+
 func UserHandlerCreate(c *fiber.Ctx) error {
-	user := new(request.UserCreateRequest)
+	user := new(request.UserRequest)
 
 	err := c.BodyParser(user)
 	if err != nil {

@@ -15,5 +15,5 @@ type UserEmtity struct {
 	Age       uint8          `json:"age"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
-	DeleteAt  gorm.DeletedAt `json:"delete_at" gorm:"index"`
+	DeleteAt  gorm.DeletedAt `json:"-" gorm:"index" column:"delete_at"`
 }
